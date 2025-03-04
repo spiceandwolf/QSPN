@@ -15,14 +15,14 @@
     cd QSPN_code/
     conda install -f environment.yml
 
+**In the following, all running should be at this directory 'QSPN_code/'.**
+
 **Step 3:** Downloading our experimental data.
 
 Download file **qspn_data_models.tar** from OneDrive sharing link: https://1drv.ms/u/c/f9c0a1a8c6911768/EfoPGQrHElVKmxYIaGbkueIB1B7XUeAvMK2Ns6PAaCrpYw?e=Q5VOF4
 
     unzip qspn_data_models.tar
     mv qspn_data_models/* .
-
-In the following, all running should be at this directory 'QSPN_code/'
 
 ## QSPN Single-Table CardEst
 
