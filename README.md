@@ -1,6 +1,6 @@
 # QSPN_code
 
-### Introduction
+## Introduction
 
 ***QSPN_code*** is the code of paper: A Unified Model for Cardinality Estimation by Learning from Data and Queries via Sum-Product Networks.
 
