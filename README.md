@@ -2,9 +2,9 @@
 
 ### Introduction
 
-The code of the paper: A Unified Model for Cardinality Estimation by Learning from Data and Queries via Sum-Product Networks.
+***QSPN_code*** is the code of paper: A Unified Model for Cardinality Estimation by Learning from Data and Queries via Sum-Product Networks.
 
-### Environment
+## Environment
 
 **Step 1:** Download this code.
 
@@ -17,13 +17,14 @@ The code of the paper: A Unified Model for Cardinality Estimation by Learning fr
 
 **Step 3:** Downloading our experimental data.
 
-    wget ...
+Download file **qspn_data_models.tar** from OneDrive sharing link: https://1drv.ms/u/c/f9c0a1a8c6911768/EfoPGQrHElVKmxYIaGbkueIB1B7XUeAvMK2Ns6PAaCrpYw?e=Q5VOF4
+
     unzip qspn_data_models.tar
     mv qspn_data_models/* .
 
-In the following, all running show at this directory 'QSPN_code/'
+In the following, all running should be at this directory 'QSPN_code/'
 
-### QSPN Single-Table CardEst
+## QSPN Single-Table CardEst
 
 We first show the command of conducting the experiments in our paper.
 
@@ -57,7 +58,7 @@ Actually, the whole command of running or constructing *QSPN* on dataset Forest 
 
 which allows users to use their own dataset and workload by change the value of parameter '--dataset', '--query-root', '--skew', '--corr'
 
-### QSPN Update CardEst
+## QSPN Update CardEst
 
 Take dataset Power for instance, we show how to run three update methods: *NoTrain*, *ReTrain* and our *AdaIncr*.
 
@@ -75,7 +76,7 @@ If you want to test update method *AdaIncr* on Query-Update-Only workload, the c
 
     python scripts/run_qspn.py --dataset power7 --skew 0.0 --corr 0.0 --update-method notrain --update-query-root template --update-skew 0.5 --update-corr 0.5
 
-### M-QSPN Multi-Table CardEst
+## M-QSPN Multi-Table CardEst
 
 Dataset: IMDB, Workload: JOB-light
 
