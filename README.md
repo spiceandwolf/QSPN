@@ -87,7 +87,7 @@ Also, if you want to test this model (with not default binning size: $1000$), th
 ## Code Structure
 
 ```sh
-|-- data # folder of datasets for Entity Resolution
+|-- data # folder of datasets and workloads
 |-- models # folder of constructed QSPN & M-QSPN models
 |-- qspn # folder of QSPN & M-QSPN source code
 |-- scripts # folder of scripts to run CardEst
@@ -133,7 +133,7 @@ The content of this file is a 3-dimensonal numpy array 'arr_query'. The first va
     numpy.save('data/sgtbdat/queries/user/test_query_sc.npy', arr_query)
     numpy.load('data/sgtbdat/queries/user/test_query_sc.npy', arr_query)
 
-If this query workload is only used as update workload, only this one file is enough. But please note that if the $q$-th (staring from $0$) query is an update operation (INSERT sentence), the '$\mathrm{arr_query}[q, :, 1]$' must be all $-1$.
+If this query workload is only used as update workload, only this one file is enough. But please note that if the $q$-th (staring from $0$) query is an update operation (INSERT sentence), the $'\mathrm{arr_query}[q, :, 1]\'$ must be all $-1$.
 
 For query workload used for Single-Table CardEst, it should contains another three npy files. 
 
