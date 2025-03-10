@@ -1,6 +1,6 @@
 # QSPN_code
 
-This is the code of our *QSPN/M-QSPN* model, corresponding to the paper: A Unified Model for Cardinality Estimation by Learning from Data and Queries via Sum-Product Networks.
+This is the code of our *QSPN/M-QSPN* model, corresponding to the paper: A Unified Model for Cardinality Estimation by Learning from Data and Queries via Sum-Product Networks. In this paper, we introduces *QSPN*, a unified model that integrates both data distribution and query workload. *QSPN* achieves high estimation ac- curacy by modeling data distribution using the simple yet effective Sum-Product Network (SPN) structure. To ensure low inference time and reduce storage overhead, *QSPN* further partitions columns based on query access patterns. We formalize *QSPN* as a tree-based structure that extends SPNs by introducing two new node types: QProduct and QSplit. This paper studies the research challenges of developing efficient algorithms for the offline construction and online computation of *QSPN*. We conduct extensive experiments to evaluate *QSPN* in both single-table and multi-table cardinality estimation settings. The experimental results have demonstrated that *QSPN* achieves superior and robust performance on the three key criteria, compared with state-of-the-art approaches.
 
 ## Configuration
 
@@ -50,9 +50,9 @@ The Model Construction Time and Model Size will be outputed to the console. And 
 
 Take dataset Power for instance, we show how to run three update methods: *NoTrain*, *ReTrain* and our *AdaIncr*.
 
-    python scripts/run_qspn.py --dataset power7 --skew 0.0 --corr 0.0 --update-method notrain --update-query-root update --update-skew 0.5 --update-corr 0.5
-    python scripts/run_qspn.py --dataset power7 --skew 0.0 --corr 0.0 --update-method retrain --update-query-root update --update-skew 0.5 --update-corr 0.5
-    python scripts/run_qspn.py --dataset power7 --skew 0.0 --corr 0.0 --update-method adaincr --update-query-root update --update-skew 0.5 --update-corr 0.5
+    python scripts/run_qspn.py --dataset power7 --skew 0.0 --corr 0.0 --update-method notrain --update-query-root update --update-skew 0.5 --update-corr 0.5 --update
+    python scripts/run_qspn.py --dataset power7 --skew 0.0 --corr 0.0 --update-method retrain --update-query-root update --update-skew 0.5 --update-corr 0.5 --update
+    python scripts/run_qspn.py --dataset power7 --skew 0.0 --corr 0.0 --update-method adaincr --update-query-root update --update-skew 0.5 --update-corr 0.5 --update
 
 where '--skew 0.0' and '--corr 0.0' means using the model constructed on the original workload with no access on correlated columns; '--update-method notrain/retrain/adaincr' means testing different update method *(NoTrain/ReTrain/AdaIncr)*; '--update-query-root update --update-skew 0.5 --update-corr 0.5' means testing the model on Hybrid-Update workload ('--update-query-root update': the workload contains data-update; '--update-skew 0.5 --update-corr 0.5': the workload contains query-update).
 
@@ -97,39 +97,89 @@ Also, if you want to test this model (with not default binning size: $1000$), th
 |-- settings.py # (Please Do NOT Modify) Configuration of Paths
 ```
 
-<!-- ## Advanced Setting
+## Advanced Setting
+
+We first introduce the file formats of data files and query workload files which you can refer to the files in *'data/'* and then illustrate the running parameters.
 
 ### Single-Table Dataset
 
-File format...
+For a new single-table dataset, supposing whose name is 'sgtbdat', we firstly create a directory with the same name in the path *'data/'*. So we get a path *'data/sgtbdat'* now. Then we prepare a csv, an hdf and a json file in the following.
+
+**File 'data/sgtbdat/data.csv':**
+
+The first line contains names of all columns with delimiter ','. In the following lines, each line is a data tuple (record) which contains values of all columns with delimiter ','. Note that the encoding of this file should be 'utf-8' and its endline should be '\\n'.
+
+**File 'data/sgtbdat/data.hdf':**
+
+The content of this file is the same with *'data/sgtbdat/data.csv'* but its type is pandas.DataFrame. We create pandas.DataFrame 'df' whose columns are the same with the firstline of *'data/sgtbdat/data.csv'* and each row is a data tuple. Afterwards, we create and read this file by:
+
+    df.to_hdf('data/sgtbdat/data.hdf', key='dataframe')
+    df = pandas.read_hdf('data/sgtbdat/data.hdf', key='dataframe')
+
+**File 'data/sgtbdat/meta.json':**
+
+This json file has two keys "columns" and "cardinality". The value of key "columns" is a dict where the name of each column maps to its index starting from $0$ in the order of columns. And the value of key "cardinality" is the total count of the data tuples.
+
+Finally, we create an empty directory *'data/sgtbdat/queries'* for query workloads.
 
 ### Single-Table Workload
 
-File format...
+For a new single-table workload for dataset 'sgtbdat', supposing whose name is 'user', we firstly create a directory with the same name in the path *'data/sgtbdat/queries'*. So we get a path *'data/sgtbdat/queries/user'*. The we prepare some npy files.
+
+**File 'data/sgtbdat/queries/user/test_query_sc.npy':**
+
+The content of this file is a 3-dimensonal numpy array 'arr_query'. The first value of the shape is equal to the number of queries in this workload, representing each query. The second value of the shape is equal the number of data columns, represent query predicate on each column. The third value of the shape is $2$, representing the lower bound constraint and upper bound constraint of this query predicate on this column. Afterwards, we create and read this file by:
+
+    numpy.save('data/sgtbdat/queries/user/test_query_sc.npy', arr_query)
+    numpy.load('data/sgtbdat/queries/user/test_query_sc.npy', arr_query)
+
+If this query workload is only used as update workload, this file is enough for it. For query workload used for CardEst, it should contains another three npy files. 
+
+**File 'data/sgtbdat/queries/user/test_true_sc.npy':**
+
+The content of this file is a 1-dimensonal numpy array 'arr_truecard'. The first value of the shape is equal to the number of queries in this workload, representing the true cardinality of each query. Afterwards, we create and read this file by:
+
+    numpy.save('data/sgtbdat/queries/user/test_true_sc.npy', arr_truecard)
+    numpy.load('data/sgtbdat/queries/user/test_true_sc.npy', arr_truecard)
+
+Another two numpy files *'data/sgtbdat/queries/user/train_query_sc.npy'* and *'data/sgtbdat/queries/user/train_true_sc.npy'* shares the same format with *'data/sgtbdat/queries/user/test_query_sc.npy'* and *'data/sgtbdat/queries/user/test_true_sc.npy' respectively.
 
 ### Multi-Table Dataset
 
-File format...
+For a new multi-table dataset, supposing whose name is 'multbdat', we firstly create a directory to get the path *'data/multbdat'*. Then we prepare multiple csv files for all tables of this dataset in the same way of single-table dataset. And we also create an empty directory *'data/multbdat/queries'* for query workloads.
 
 ### Multi-Table Workload
 
-File format...
+For a multi-table workload for dataset 'multbdat', suppoing whose name is 'userb', we prepare the csv file *'data/multbdat/queries/userb.csv'* in which each line represents a multi-table query. And a multi-table query contains four parts with delimiter '#'.
+
+The first part contains the names of all tables accessed by the query with delimiter ','. The second part contains all join predicates of the query with delimiter ',' where each join predicate is described as 'tableA.columnX=tableB.columnY'. The third part contains all range predicates of the query with delimiter ',' between each symbol such as 'tableA.columnI,=,100,tableB.columnJ,>,20,tableB.columnJ,<,50'. The four part is a number, the true cardinality of the query.
+
+The workload train set and test set is not distinguished by specific file name. For example, you can construct a *M-QSPN* model on workload 'userb' and test it on workload 'userc'.
 
 ### Running Parameter
 
 #### QSPN Paramter
 
-...
+**--dataset**: set the name of single-table dataset like '--dataset sgtbdat'
+
+**--query-path**: set the name of single-table workload like '--query-path user'
+
+**--Nx**, **--lower**, **--upper**: tune the parameters of adaptive RDC threshold of *QSPN* model and we recommends to keep the default setting '--Nx 5.0 --lower 0.1 --upper 0.3' which we think is OK for various datasets.
+
+If you want to construct a *QSPN* model, add a switch parameter **--train**, the model file will be dumped to the file like *'models/single_tables/qspn/qspn_5.0_0.1_0.3_QSplit_sgtbdat_user.pkl'*. Correspondingly, if you want to test this constructed model, add a switch parameter **--inference**. And if you want to test the *QSPN* Update Method by constructing model on workload 'user1' and testing model on workload 'user2', you should also set parameter **--update-query-path** like '--query-path user1 --update-query-path user2' and **--update-method** like '--update-method adaincr' with a switch parameter **--update**.
 
 #### M-QSPN Parater
 
-Actually, the whole command of running or constructing *QSPN* on dataset Forest and our workload is:
+**--dataset**: set the name of multi-table dataset like '--dataset multbdat'
 
-    python scripts/run_qspn.py --dataset forest10 --query-root template --skew 0.5 --corr 0.5 --inference
-    python scripts/run_qspn.py --dataset forest10 --query-root template --skew 0.5 --corr 0.5 --train
+**--workload-trainset**: set the name of multi-table workload train set like '--workload-trainset userb'
 
-which allows users to use their own dataset and workload by change the value of parameter '--dataset', '--query-root', '--skew', '--corr'
+**--workload-testset**: set the name of multi-table workload test set like '--workload-testset userc'
 
-## Acknowledgement
+**--model-binning-size**: tune the bins size limit of *M-QSPN* model binning like '--model-binning-size 200'. A bigger setting usually improves the CardEst accuracy of *M-QSPN* model with longer inference time.
+
+If you want to construct a *M-QSPN* model, add a switch parameter **--train**, the model file will be dumped to the file like *'models/multi_tables/mqspn/mqspn_multbdat_userb_200.pkl'*. Correspondingly, if you want to test this constructed model, add a switch parameter **--inference**. Note that our code shows that we do not use workload test set for model construction and we only use the name of workload train set to locate the model file for model test.
+
+<!-- ## Acknowledgement
 
 ... -->

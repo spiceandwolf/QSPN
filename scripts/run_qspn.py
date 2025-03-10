@@ -73,6 +73,7 @@ if __name__ == '__main__':
     parser.add_argument('--update-data', type=str, required=False)
     parser.add_argument('--update-meta', type=str, required=False)
     parser.add_argument('--update-query-root', type=str, default='template')
+    parser.add_argument('--update-query-path', type=str, required=False)
     parser.add_argument('--update-skew', type=float, default=None)
     parser.add_argument('--update-corr', type=float, default=None)
     parser.add_argument('--update-method', type=str, default='notrain')
@@ -139,6 +140,8 @@ if __name__ == '__main__':
     if args.skew is not None and args.corr is not None:
         query_path = str(query_root / f"query_{args.skew}_{args.corr}_0.0")
         model_save = str(MODEL_PATH / f"{model_prefix}_{args.query_root}_{args.skew}_{args.corr}.pkl")
+    if args.update_query_path is not None:
+        update_query_path = str(settings.DATA_ROOT / args.dataset/ "queries" /args.update_query_path)
     if args.update_query_root is not None and args.update_skew is not None and args.update_corr is not None:
         print(type(args.update_query_root))
         update_query_path = os.path.join(settings.DATA_ROOT, args.dataset, "queries", args.update_query_root, f"query_{args.update_skew}_{args.update_corr}_0.0")
