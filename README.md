@@ -133,7 +133,7 @@ The content of this file is a 3-dimensonal numpy array 'arr_query'. The first va
     numpy.save('data/sgtbdat/queries/user/test_query_sc.npy', arr_query)
     numpy.load('data/sgtbdat/queries/user/test_query_sc.npy', arr_query)
 
-If this query workload is only used as update workload, only this one file is enough. But please note that if the $q$-th (staring from $0$) query is an update operation (INSERT sentence), the 'arr_query[q, :, 1]' must be all $-1$.
+If this query workload is only used as update workload, only this one file is enough. But please note that if the $q$-th (staring from $0$) query is a data update operation (INSERT sentence), the 'arr_query[q, :, 1]' must be all $-1$ and the 'arr_query[q, :, 0]' represents the inserted data tuple. This is how we distinguish between data update operation and query.
 
 For query workload used for Single-Table CardEst, it should contains another three npy files. 
 
@@ -180,7 +180,7 @@ If you want to construct a *QSPN* model, add a switch parameter **--train**, the
 
 **--model-binning-size**: tune the bins size limit of *M-QSPN* model binning like '--model-binning-size 200'. A bigger setting usually improves the CardEst accuracy of *M-QSPN* model with longer inference time.
 
-If you want to construct a *M-QSPN* model, add a switch parameter **--train**, the model file will be dumped to the file like *'models/multi_tables/mqspn/mqspn_multbdat_userb_200.pkl'*. Correspondingly, if you want to test this constructed model, add a switch parameter **--inference**. Note that our code shows that we do not use workload test set for model construction and we only use the name of workload train set to locate the model file for model test.
+If you want to construct a *M-QSPN* model, add a switch parameter **--train**, the model file will be dumped to the file like *'models/multi_tables/mqspn/mqspn_multbdat_userb_200.pkl'*. Correspondingly, if you want to test this constructed model, add a switch parameter **--inference**. Note that our code actually shows that we do not use workload test set for model construction and we only use the name of workload train set to locate the path of model file for model test though 'scripts/run_mqspn.py' always needs setting both '--workload-trainset' and '--workload-testset'.
 
 <!-- ## Acknowledgement
 
