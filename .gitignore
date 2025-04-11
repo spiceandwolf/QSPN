@@ -3,6 +3,7 @@
 models/epoch-*
 .ipynb*
 __pycache__/
+**/__pycache__/
 datasets
 
 models/*
